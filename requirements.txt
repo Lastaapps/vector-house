@@ -1,0 +1,17 @@
+attrs==22.2.0
+autopep8==2.0.2
+docopt==0.6.2
+jsonable==0.3.1
+jsonschema==4.17.3
+mwcli==0.0.3
+mwtypes==0.3.2
+mwxml==0.3.3
+para==0.0.8
+pycodestyle==2.10.0
+pyrsistent==0.19.3
+python-dateutil==2.8.2
+pytz==2022.7.1
+six==1.16.0
+tomli==2.0.1
+wiki-dump-reader==0.0.4
+wikiextractor==3.0.6
