@@ -1,2 +1,4 @@
-/wiki-data
 .venv
+
+/wiki-data
+wiki-index.db
