@@ -8,6 +8,7 @@ jsonschema==4.17.3
 mwcli==0.0.3
 mwtypes==0.3.2
 mwxml==0.3.3
+nltk==3.8.1
 packaging==23.0
 para==0.0.8
 pluggy==1.0.0

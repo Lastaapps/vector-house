@@ -1,6 +1,14 @@
 import glob
+import nltk
 import mwxml
+import string
+from collections import defaultdict
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
 from wiki_dump_reader import Cleaner
+
+nltk.download("wordnet")
+nltk.download("stopwords")
 
 # Max number of Wiki pages to index
 INDEX_SIZE = 42  # 8192
@@ -32,10 +40,25 @@ def remove_wiki_shit(text) -> str:
 
     return text
 
+def lemmatize_text(text) -> dict:
+    """Lemmatize the text, remove stop words and count frequencies."""
 
-def lemmatize_text(text) -> str:
-    # TODO do the true lemmatization
-    return text
+    text_no_punct = text.translate(str.maketrans("", "", string.punctuation)) # remove punctuation
+    tokens = nltk.word_tokenize(text_no_punct)
+    lemmatizer = WordNetLemmatizer()
+
+    stop_words = set(stopwords.words('english'))
+    extra_stop_words = {'like'}
+    stop_words.update(extra_stop_words)
+
+    freq_dict = defaultdict(int)
+    for token in tokens:
+        word = token.lower()
+        if word not in stop_words:
+            word = lemmatizer.lemmatize(word)
+            freq_dict[word] += 1
+
+    return freq_dict
 
 
 def create_index() -> None:
@@ -43,7 +66,7 @@ def create_index() -> None:
 
     file_name = get_file_name()
     print(f"Using {file_name}")
-    dump = mwxml.Dump.from_file(open(file_name))
+    dump = mwxml.Dump.from_file(open(file_name, encoding="utf8"))
     print(dump.site_info.name, dump.site_info.dbname)
 
     # TODO create database
@@ -59,9 +82,9 @@ def create_index() -> None:
 
             text = revision.text[:256]
             text = remove_wiki_shit(text)
-            text = lemmatize_text(text)
+            freq_dict = lemmatize_text(text)
             # TODO process
-            print(text, "\n")
+            print(freq_dict, "\n")
 
         pages_counter += 1
         if pages_counter >= INDEX_SIZE:
