@@ -11,7 +11,7 @@ nltk.download("wordnet")
 nltk.download("stopwords")
 
 # Max number of Wiki pages to index
-INDEX_SIZE = 42  # 8192
+INDEX_SIZE = 8192
 XML_LOCATION = "../../wiki-data/*wiki-*-pages-articles-multistream.xml"
 
 
@@ -48,7 +48,7 @@ def lemmatize_text(text) -> dict:
     lemmatizer = WordNetLemmatizer()
 
     stop_words = set(stopwords.words('english'))
-    extra_stop_words = {'like'}
+    extra_stop_words = {'like', '&ndash;'}
     stop_words.update(extra_stop_words)
 
     freq_dict = defaultdict(int)
@@ -76,15 +76,19 @@ def create_index() -> None:
         page_id = page.id
         page_title = page.title
         print(f"{page_id}: {page_title}")
-        for revision in page:
-            if revision.model != "wikitext":
-                continue
+        revision = next(x for x in page)
+        if revision.model != "wikitext":
+            continue
 
-            text = revision.text[:256]
-            text = remove_wiki_shit(text)
-            freq_dict = lemmatize_text(text)
-            # TODO process
-            print(freq_dict, "\n")
+        text = revision.text
+        text = remove_wiki_shit(text)
+        if text.startswith("REDIRECT"):
+            continue
+
+        freq_dict = lemmatize_text(text)
+        print(text[:256])
+        print(freq_dict, end = "\n")
+        print()
 
         pages_counter += 1
         if pages_counter >= INDEX_SIZE:
