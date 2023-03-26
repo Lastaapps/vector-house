@@ -183,6 +183,21 @@ SELECT term_id FROM term WHERE name = ?
         )
 
         return res.fetchone()[0]
+    
+    def get_term_by_id(self, id: int) -> str:
+        """
+        Checks if the term is already presented
+        """
+        cur = self.con.cursor()
+
+        res = cur.execute(
+            """
+SELECT name FROM term WHERE term_id = ?
+                    """,
+            [id],
+        )
+
+        return res.fetchone()[0]
 
     def get_doc_id(self, title: str) -> int:
         """

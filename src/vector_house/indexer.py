@@ -1,5 +1,7 @@
+from database import WikiDatabase
 import glob
 import nltk
+import math
 import mwxml
 import string
 from collections import defaultdict
@@ -40,6 +42,7 @@ def remove_wiki_shit(text) -> str:
 
     return text
 
+
 def lemmatize_text(text) -> dict:
     """Lemmatize the text, remove stop words and count frequencies."""
 
@@ -61,6 +64,66 @@ def lemmatize_text(text) -> dict:
     return freq_dict
 
 
+def update_abs_freq(freq_dict: dict, terms: set, doc_id: int, abs_dict: dict, wiki_db: WikiDatabase) -> None:
+    """Updates dictionary with absolute frequencies and adds terms to the database."""
+
+    for term, value in freq_dict.items():
+        term_id = 0
+        if wiki_db.has_term(term):
+            term_id = wiki_db.get_term_id(term)
+        else:
+            term_id = wiki_db.insert_term(term)
+            wiki_db.commit()
+        
+        terms.add(term_id)
+        abs_dict.setdefault(term_id, {})[doc_id] = value
+
+
+def count_relative_freq(absolute_freq: dict, terms: set) -> dict:
+    """Counts relative frequencies of terms in all documents. Zero frequency is left out."""
+
+    relative_freq = {}
+    for term_id in terms:
+        if term_id not in absolute_freq:
+            continue
+
+        cur_dict = absolute_freq[term_id]
+        max_freq = max(cur_dict.values())
+        for doc_id, freq in cur_dict.items():
+            relative_freq.setdefault(term_id, {})[doc_id] = round(freq/max_freq, 2)
+    
+    return relative_freq
+
+
+def count_weight(num_of_docs: int, tf_ij: int, df_i: int) -> float:
+    """Count weight of term in given document."""
+    
+    idf_i = math.log(num_of_docs/df_i, 2)
+
+    return round(tf_ij * idf_i, 2)
+
+
+def weights_to_db(wiki_db: WikiDatabase, relative_freq: dict, terms: set, num_of_docs: int) -> None:
+    for term_id in terms:
+        if term_id not in relative_freq:
+            continue
+
+        cur_dict = relative_freq[term_id]
+        for doc_id, value in cur_dict.items():
+            tf_ij = value # normalized term frequency
+            df_i = len(cur_dict) # num of docs containig term
+            weight = count_weight(num_of_docs, tf_ij, df_i)
+            wiki_db.insert_value(term_id, doc_id, weight)
+
+    wiki_db.commit()
+
+def create_database() -> WikiDatabase:
+    wiki_db = WikiDatabase()
+    wiki_db.connect_database()
+    wiki_db.create_if_needed()
+    return wiki_db
+
+
 def create_index() -> None:
     """Reads wiki dump and processes it"""
 
@@ -69,13 +132,14 @@ def create_index() -> None:
     dump = mwxml.Dump.from_file(open(file_name, encoding="utf8"))
     print(dump.site_info.name, dump.site_info.dbname)
 
-    # TODO create database
-
+    wiki_db = create_database()
+    terms = set() # ids of all terms
+    absolute_freq = {}
     pages_counter = 0
+
     for page in dump:
         page_id = page.id
         page_title = page.title
-        print(f"{page_id}: {page_title}")
         revision = next(x for x in page)
         if revision.model != "wikitext":
             continue
@@ -84,16 +148,18 @@ def create_index() -> None:
         text = remove_wiki_shit(text)
         if text.startswith("REDIRECT"):
             continue
-
+        
+        print(f"{page_id}: {page_title}")
+        doc_id = wiki_db.insert_document(page_title, text)
         freq_dict = lemmatize_text(text)
-        print(text[:256])
-        print(freq_dict, end = "\n")
-        print()
+        update_abs_freq(freq_dict, terms, doc_id, absolute_freq, wiki_db)
 
         pages_counter += 1
         if pages_counter >= INDEX_SIZE:
             break
-
+    
+    relative_freq = count_relative_freq(absolute_freq, terms)
+    weights_to_db(wiki_db, relative_freq, terms, INDEX_SIZE)
 
 def drop_index() -> None:
     # TODO drop database
