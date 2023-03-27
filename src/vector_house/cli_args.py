@@ -2,6 +2,7 @@ import click
 
 import vector_house.indexer as ind
 
+
 @click.command()
 @click.option("--index", is_flag=True, default=False, help="Recreates index")
 def app(index: bool):

@@ -31,12 +31,13 @@ class WikiDatabase:
 
         cur = self.con.cursor()
 
-        cur = cur.execute("""
+        cur = cur.execute(
+            """
 SELECT name FROM sqlite_master WHERE type='table' AND name='term';
-                """)
-        
+                """
+        )
+
         return cur.fetchone() != None
-        
 
     def create_database(self) -> None:
         """Creates a database scheme"""
@@ -184,7 +185,7 @@ SELECT term_id FROM term WHERE name = ?
         )
 
         return res.fetchone()[0]
-    
+
     def get_term_by_id(self, id: int) -> str:
         """
         Checks if the term is already presented
@@ -255,7 +256,7 @@ SELECT value FROM value WHERE term_id = ? AND doc_id = ?;
         res = cur.execute(
             """
 SELECT doc_id, value FROM term
-JOIN values USING(term_id)
+JOIN value USING(term_id)
 JOIN document USING(doc_id)
 WHERE term.name = ?;
                     """,
@@ -264,7 +265,7 @@ WHERE term.name = ?;
 
         rows = res.fetchall()
         doc_id_iter = (x[0] for x in rows)
-        value_iter  = (np.float32(x[1]) for x in rows)
+        value_iter = (np.float32(x[1]) for x in rows)
         to_return = dict(zip(doc_id_iter, value_iter))
 
         return to_return

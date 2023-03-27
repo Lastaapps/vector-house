@@ -1,9 +1,12 @@
-
 from typing import List, Dict, Tuple
 import numpy as np
-from database import WikiDatabase
+from vector_house.database import WikiDatabase
+
 
 def find_vectors(db: WikiDatabase, terms: List[str]) -> Dict[int, np.array]:
+    """
+    Finds weight vectors for the terms given
+    """
     size = len(terms)
     to_return: Dict[int, np.array] = dict()
 
@@ -16,9 +19,9 @@ def find_vectors(db: WikiDatabase, terms: List[str]) -> Dict[int, np.array]:
             if doc_id not in to_return.keys():
                 to_return[doc_id] = np.zeros(size)
 
-            value  = doc_with_value[1]
+            value = doc_with_value[1]
             to_return[doc_id][i] = value
-        
+
 
 def search(data: Dict[int, np.array]) -> List[int]:
     pass
