@@ -1,5 +1,5 @@
 #!/bin/bash
 
 cd src
-python3 -m vekturkuv_domecek
+python3 -m vector_house $@
 

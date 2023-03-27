@@ -254,9 +254,9 @@ SELECT value FROM value WHERE term_id = ? AND doc_id = ?;
 
         res = cur.execute(
             """
-SELECT docId, value FROM term
-JOIN values USING(termId)
-JOIN document USING(docId)
+SELECT doc_id, value FROM term
+JOIN values USING(term_id)
+JOIN document USING(doc_id)
 WHERE term.name = ?;
                     """,
             [term_name],

@@ -1,6 +1,6 @@
 import os
 
-import vector_house.indexer as ind
+import vector_house.cli_args as args
 # import indexer as ind
 
 def pwd() -> None:
@@ -13,7 +13,7 @@ def main() -> None:
     print("Hello, vector home is starting...")
     pwd()
 
-    ind.create_index()
+    args.app()
 
     print("Bye")
 

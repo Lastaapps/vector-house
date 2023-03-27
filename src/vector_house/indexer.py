@@ -1,4 +1,4 @@
-from database import WikiDatabase
+from vector_house.database import WikiDatabase
 import glob
 import nltk
 import math
@@ -120,11 +120,12 @@ def weights_to_db(wiki_db: WikiDatabase, relative_freq: dict, terms: set, num_of
 def create_database() -> WikiDatabase:
     wiki_db = WikiDatabase()
     wiki_db.connect_database()
+    wiki_db.drop_if_exists()
     wiki_db.create_if_needed()
     return wiki_db
 
 
-def create_index() -> None:
+def recreate_index() -> None:
     """Reads wiki dump and processes it"""
 
     file_name = get_file_name()
@@ -133,6 +134,7 @@ def create_index() -> None:
     print(dump.site_info.name, dump.site_info.dbname)
 
     wiki_db = create_database()
+
     terms = set() # ids of all terms
     absolute_freq = {}
     pages_counter = 0
