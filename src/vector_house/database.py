@@ -1,6 +1,7 @@
 import sqlite3
 from sqlite3 import Connection
-from typing import Tuple
+from typing import Tuple, Dict
+import numpy as np
 
 DB_PATH = "../../wiki-index.db"
 
@@ -245,4 +246,25 @@ SELECT value FROM value WHERE term_id = ? AND doc_id = ?;
 
         return (res.fetchone() or [0.0])[0]
 
-    # TODO intersect
+    def get_values_for_term(self, term_name: str) -> Dict[int, np.float32]:
+        """
+        Gets value for the pair given
+        """
+        cur = self.con.cursor()
+
+        res = cur.execute(
+            """
+SELECT docId, value FROM term
+JOIN values USING(termId)
+JOIN document USING(docId)
+WHERE term.name = ?;
+                    """,
+            [term_name],
+        )
+
+        rows = res.fetchall()
+        doc_id_iter = (x[0] for x in rows)
+        value_iter  = (np.float32(x[1]) for x in rows)
+        to_return = dict(zip(doc_id_iter, value_iter))
+
+        return to_return
