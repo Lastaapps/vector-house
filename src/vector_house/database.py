@@ -26,6 +26,7 @@ class WikiDatabase:
         if self.has_schema():
             self.drop_database()
 
+
     def has_schema(self) -> bool:
         """Creates the db if it's schema is empty"""
 
@@ -33,11 +34,12 @@ class WikiDatabase:
 
         cur = cur.execute(
             """
-SELECT name FROM sqlite_master WHERE type='table' AND name='term';
+SELECT count(name) FROM sqlite_master WHERE type='table';
                 """
         )
 
-        return cur.fetchone() != None
+        return cur.fetchone()[0] > 2
+
 
     def create_database(self) -> None:
         """Creates a database scheme"""
@@ -106,6 +108,12 @@ DROP TABLE value;
         Commits staged changes
         """
         self.con.commit()
+
+    def close(self) -> None:
+        """
+        Commits staged changes
+        """
+        self.con.close()
 
     def insert_document(self, title: str, text: str) -> int:
         """
