@@ -73,7 +73,7 @@ def update_abs_freq(freq_dict: dict, terms: set, doc_id: int, abs_dict: dict, wi
             term_id = wiki_db.get_term_id(term)
         else:
             term_id = wiki_db.insert_term(term)
-            wiki_db.commit()
+            # wiki_db.commit()
         
         terms.add(term_id)
         abs_dict.setdefault(term_id, {})[doc_id] = value
@@ -151,7 +151,7 @@ def recreate_index() -> None:
         if text.startswith("REDIRECT"):
             continue
         
-        print(f"{page_id}: {page_title}")
+        print(f"{page_id:4}: {page_title}")
         doc_id = wiki_db.insert_document(page_title, text)
         freq_dict = lemmatize_text(text)
         update_abs_freq(freq_dict, terms, doc_id, absolute_freq, wiki_db)
