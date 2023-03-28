@@ -2,9 +2,6 @@ import os
 
 import vector_house.cli_args as args
 
-# import indexer as ind
-
-
 def pwd() -> None:
     dir_path = os.path.dirname(os.path.realpath(__file__))
     os.chdir(dir_path)
