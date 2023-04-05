@@ -299,3 +299,37 @@ WHERE doc_id = ?;
         values = (np.float32(x[1]) for x in rows)
         to_return = dict(zip(term_names, values))
         return to_return
+
+    def create_index(self):
+        print("Creating index")
+
+        cur = self.con.cursor()
+        cur.execute("""
+CREATE INDEX IF NOT EXISTS value_term_id ON value (term_id);
+                    """)
+        cur.execute("""
+CREATE INDEX IF NOT EXISTS value_doc_id ON value (doc_id);
+                    """)
+        cur.execute("""
+CREATE INDEX IF NOT EXISTS term_term_id ON value (term_id);
+                    """)
+        cur.execute("""
+CREATE INDEX IF NOT EXISTS document_doc_id ON value (doc_id);
+                    """)
+ 
+    def drop_index(self):
+        print("Dropping index")
+
+        cur = self.con.cursor()
+        cur.execute("""
+DROP INDEX IF EXISTS term_term_id;
+                    """)
+        cur.execute("""
+DROP INDEX IF EXISTS document_doc_id;
+                    """)
+        cur.execute("""
+DROP INDEX IF EXISTS value_doc_id;
+                    """)
+        cur.execute("""
+DROP INDEX IF EXISTS value_term_id;
+                    """)

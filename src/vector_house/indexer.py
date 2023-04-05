@@ -168,8 +168,6 @@ def recreate_index() -> WikiDatabase:
 
     relative_freq = count_relative_freq(absolute_freq, terms)
     weights_to_db(wiki_db, relative_freq, terms, INDEX_SIZE)
-    return wiki_db
 
-def drop_index() -> None:
-    # TODO drop database
-    pass
+    wiki_db.create_index()
+    return wiki_db
