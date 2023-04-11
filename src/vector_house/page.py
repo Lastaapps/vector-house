@@ -1,8 +1,10 @@
-from vector_house.database import WikiDatabase
+#from vector_house.database import WikiDatabase
+from database import WikiDatabase
 import indexer as ind
 import numpy as np
 import search_engine as se
 import streamlit as st
+import time
 
 def get_pages(keywords: list) -> list:
     """Gets ids of 10 pages to show"""
@@ -73,7 +75,13 @@ def run_page():
     st.write("Showing pages about:", st.session_state.name)
 
     if st.session_state.reload:
+        start_time = time.time()
         st.session_state.pages = get_pages(st.session_state.keywords)
+        end_time = time.time()
+        st.session_state.time = round(end_time - start_time, 2)
+
+    if "time" in st.session_state:
+        st.write("Time taken (in seconds):", st.session_state.time)
 
     print_pages(st.session_state.pages)
 
