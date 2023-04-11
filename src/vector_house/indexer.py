@@ -13,7 +13,7 @@ nltk.download("wordnet")
 nltk.download("stopwords")
 
 # Max number of Wiki pages to index
-INDEX_SIZE = 8192
+INDEX_SIZE = 50 # 8192
 XML_LOCATION = "../../wiki-data/*wiki-*-pages-articles-multistream.xml"
 
 
@@ -131,7 +131,7 @@ def create_database() -> WikiDatabase:
     return wiki_db
 
 
-def recreate_index() -> None:
+def recreate_index() -> WikiDatabase:
     """Reads wiki dump and processes it"""
 
     file_name = get_file_name()
@@ -168,7 +168,7 @@ def recreate_index() -> None:
 
     relative_freq = count_relative_freq(absolute_freq, terms)
     weights_to_db(wiki_db, relative_freq, terms, INDEX_SIZE)
-
+    return wiki_db
 
 def drop_index() -> None:
     # TODO drop database

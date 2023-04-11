@@ -10,6 +10,7 @@ def find_vectors(db: WikiDatabase, terms: List[str]) -> Dict[int, np.array]:
     size = len(terms)
     to_return: Dict[int, np.array] = dict()
 
+    print("Finding docs")
     for i in range(size):
         term = terms[i]
         from_db = db.get_values_for_term(term)
@@ -21,6 +22,8 @@ def find_vectors(db: WikiDatabase, terms: List[str]) -> Dict[int, np.array]:
 
             value = doc_with_value[1]
             to_return[doc_id][i] = value
+    
+    return to_return
 
 def count_cos_sim(vec1: np.array, vec2: np.array) -> float:
     """
@@ -47,6 +50,8 @@ def search(data: Dict[int, np.array], wanted: np.array=None) -> List[int]:
         wanted = np.ones(num_of_terms)
 
     top_docs = PriorityQueue(maxsize=11)
+
+    print("Counting cos similarity")
     for doc_id, vector in data.items():
         cos_sim = count_cos_sim(vector, wanted)
         top_docs.put((cos_sim, doc_id))

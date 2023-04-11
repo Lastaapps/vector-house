@@ -16,7 +16,7 @@ class WikiDatabase:
         Creates the database file if needed
         and connects to it
         """
-        self.con = sqlite3.connect(self.path)
+        self.con = sqlite3.connect(self.path, check_same_thread=False)
 
     def create_if_needed(self) -> None:
         if not self.has_schema():
@@ -276,4 +276,26 @@ WHERE term.name = ?;
         value_iter = (np.float32(x[1]) for x in rows)
         to_return = dict(zip(doc_id_iter, value_iter))
 
+        return to_return
+
+    def get_terms_for_doc(self, doc_id: int) -> Dict[str, np.float32]:
+        """
+        Gets terms in given document
+        """
+        cur = self.con.cursor()
+
+        res = cur.execute(
+            """
+SELECT term.name, value FROM term
+JOIN value USING(term_id)
+JOIN document USING(doc_id)
+WHERE doc_id = ?;
+                    """,
+            [doc_id],
+        )
+
+        rows = res.fetchall()
+        term_names = [row[0] for row in rows]
+        values = (np.float32(x[1]) for x in rows)
+        to_return = dict(zip(term_names, values))
         return to_return
