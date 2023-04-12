@@ -298,6 +298,17 @@ WHERE doc_id = ?;
         to_return = dict(zip(term_names, values))
         return to_return
 
+    def has_index(self) -> bool:
+        """Checks if the database has created indexes"""
+        cur = self.con.cursor()
+        res = cur.execute(
+            """
+SELECT count(*) FROM sqlite_master WHERE type='index' and name='value_term_id';
+                    """
+        )
+
+        return res.fetchone()[0] != 0
+
     def create_index(self):
         print("Creating index")
 
@@ -353,13 +364,13 @@ DROP INDEX IF EXISTS value_term_id;
         cur = self.con.cursor()
 
         res = cur.execute(""" SELECT count(term_id) FROM term; """)
-        cnt = res.fetchone()
+        cnt = res.fetchone()[0]
         print(f"Terms: {cnt}")
 
         res = cur.execute(""" SELECT count(doc_id) FROM document; """)
-        cnt = res.fetchone()
+        cnt = res.fetchone()[0]
         print(f"Documents: {cnt}")
 
         res = cur.execute(""" SELECT count(*) FROM value; """)
-        cnt = res.fetchone()
+        cnt = res.fetchone()[0]
         print(f"Values: {cnt}")

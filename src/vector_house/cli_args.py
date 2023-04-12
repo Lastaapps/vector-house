@@ -1,6 +1,7 @@
 import click
 
 import indexer as ind
+from database import WikiDatabase
 
 
 @click.command()
@@ -22,8 +23,13 @@ def app(index: bool, limit: int, size: int):
 
     if not index:
         # Start normal
-        # TODO
-        print("TODO")
+        wiki_db = WikiDatabase()
+        wiki_db.connect_database()
+
+        print("Showing index stats")
+        wiki_db.print_stats()
+        has_index = wiki_db.has_index()
+        print(f"Indexes created: {has_index}")
     else:
         # Started with a parameter
         print("(Re)creating index")
