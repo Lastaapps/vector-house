@@ -1,4 +1,9 @@
 # Vektůrkův domeček
+Vector house - this is where the fun happens.
+
+Vector house is a vector based search engine used to search en variant of Wikipedia. 
+It was developed in 2023 by Naďa Fučelová and Petr Laštovička during
+the BI-VWM (Web and multimedia db searching) course at FIT CTU.
 
 ## Setup
 ### Download
@@ -6,10 +11,15 @@ Download the latest dump from wiki
 https://dumps.wikimedia.org/enwiki/
 and extract it in the `wiki-data` folder.
 
-### Usage
-To open the page go to use `streamlit run src/vector_house/page.py`
+Create a virtual env `python -m venv .venv`, source it `source .venv/bin/activate` and install requirements
+`pip install -r requirements.txt`.
+
+## Usage
+To open the page go to use `streamlit run vector_house/page.py`
 
 ### Index
+To view index status, run `python -m vector_house` or `./run`.
+
 To create an index run the app from cli with the `--index` flag.
 
 If you want to limit the number of words processed in each document,
@@ -18,3 +28,9 @@ The default limit is 42069 words.
 
 Index size (doc count) is set to 8000 by default. You can change it with
 `--size` flag in combination with the `index` frag.
+
+### Tests
+To run tests, run the `pytest vector_house`.
+
+## License
+TODO
