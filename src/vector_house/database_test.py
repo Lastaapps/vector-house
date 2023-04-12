@@ -1,14 +1,15 @@
-
 from typing import Callable
 from database import WikiDatabase
 import random as rnd
 
 DB_PATH_TEST = "wiki-test-index.db"
 
+
 def run_with_db(fun: Callable[[WikiDatabase], None]) -> None:
     """Decorator for database testing"""
+
     def run():
-        db = WikiDatabase(path = DB_PATH_TEST)
+        db = WikiDatabase(path=DB_PATH_TEST)
         db.connect_database()
         db.drop_if_exists()
         db.create_database()
@@ -25,8 +26,9 @@ def run_with_db(fun: Callable[[WikiDatabase], None]) -> None:
             raise
         else:
             close()
+
     return run
-    
+
 
 @run_with_db
 def test_insert_document(db: WikiDatabase) -> None:
@@ -35,14 +37,14 @@ def test_insert_document(db: WikiDatabase) -> None:
         text = "Text " + str(i)
 
         id1 = db.insert_document(title, text)
-        assert(id1 == i + 1)
+        assert id1 == i + 1
 
         id2 = db.get_doc_id(title)
-        assert(id1 == id2)
+        assert id1 == id2
 
         title_db, text_db = db.get_doc_by_id(id1)
-        assert(title_db == title)
-        assert(text_db == text)
+        assert title_db == title
+        assert text_db == text
 
 
 @run_with_db
@@ -51,15 +53,15 @@ def test_insert_term(db: WikiDatabase) -> None:
         name = "Term " + str(i)
 
         id1 = db.insert_term(name)
-        assert(id1 == i + 1)
+        assert id1 == i + 1
 
         id2 = db.get_term_id(name)
-        assert(id1 == id2)
+        assert id1 == id2
 
 
 @run_with_db
 def test_insert_value(db: WikiDatabase) -> None:
-    TEST_SIZE = 42    
+    TEST_SIZE = 42
 
     for i in range(TEST_SIZE):
         title = "Title " + str(i)
@@ -79,4 +81,4 @@ def test_insert_value(db: WikiDatabase) -> None:
 
         db.insert_value(term_id, doc_id, value)
         stored = db.get_value_by_ids(term_id, doc_id)
-        assert(stored == value)
+        assert stored == value

@@ -26,7 +26,6 @@ class WikiDatabase:
         if self.has_schema():
             self.drop_database()
 
-
     def has_schema(self) -> bool:
         """Creates the db if it's schema is empty"""
 
@@ -39,7 +38,6 @@ SELECT count(name) FROM sqlite_master WHERE type='table';
         )
 
         return cur.fetchone()[0] > 2
-
 
     def create_database(self) -> None:
         """Creates a database scheme"""
@@ -304,32 +302,64 @@ WHERE doc_id = ?;
         print("Creating index")
 
         cur = self.con.cursor()
-        cur.execute("""
+        cur.execute(
+            """
 CREATE INDEX IF NOT EXISTS value_term_id ON value (term_id);
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 CREATE INDEX IF NOT EXISTS value_doc_id ON value (doc_id);
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 CREATE INDEX IF NOT EXISTS term_term_id ON value (term_id);
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 CREATE INDEX IF NOT EXISTS document_doc_id ON value (doc_id);
-                    """)
- 
+                    """
+        )
+
     def drop_index(self):
         print("Dropping index")
 
         cur = self.con.cursor()
-        cur.execute("""
+        cur.execute(
+            """
 DROP INDEX IF EXISTS term_term_id;
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 DROP INDEX IF EXISTS document_doc_id;
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 DROP INDEX IF EXISTS value_doc_id;
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 DROP INDEX IF EXISTS value_term_id;
-                    """)
+                    """
+        )
+
+    def print_stats(self) -> None:
+        """Prints info about DB table sizes"""
+        cur = self.con.cursor()
+
+        res = cur.execute(""" SELECT count(term_id) FROM term; """)
+        cnt = res.fetchone()
+        print(f"Terms: {cnt}")
+
+        res = cur.execute(""" SELECT count(doc_id) FROM document; """)
+        cnt = res.fetchone()
+        print(f"Documents: {cnt}")
+
+        res = cur.execute(""" SELECT count(*) FROM value; """)
+        cnt = res.fetchone()
+        print(f"Values: {cnt}")

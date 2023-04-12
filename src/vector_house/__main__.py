@@ -2,6 +2,7 @@ import os
 
 import cli_args as args
 
+
 def pwd() -> None:
     dir_path = os.path.dirname(os.path.realpath(__file__))
     os.chdir(dir_path)

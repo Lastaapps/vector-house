@@ -1,10 +1,11 @@
-#from vector_house.database import WikiDatabase
+# from vector_house.database import WikiDatabase
 from database import WikiDatabase
 import indexer as ind
 import numpy as np
 import search_engine as se
 import streamlit as st
 import time
+
 
 def get_pages(keywords: list) -> list:
     """Gets ids of 10 pages to show"""
@@ -18,6 +19,7 @@ def get_pages(keywords: list) -> list:
 
     return pages
 
+
 def set_new_state(page_id: int):
     """Sets new state to show similar pages to given one"""
 
@@ -30,17 +32,21 @@ def set_new_state(page_id: int):
 
 
 def print_pages(pages: list) -> None:
-    """ Prints the title and the text of pages, shows buttons"""
+    """Prints the title and the text of pages, shows buttons"""
 
     st.write("---")
     wiki_db = st.session_state.wiki_db
     for page_id in pages:
         title, text = wiki_db.get_doc_by_id(page_id)
         st.write(f"<h4 style='text-align: left'>{title}</h4>", unsafe_allow_html=True)
-        st.markdown(f"<p style='text-align: justify'>{text[:5000]}</p>", unsafe_allow_html=True)
+        st.markdown(
+            f"<p style='text-align: justify'>{text[:5000]}</p>", unsafe_allow_html=True
+        )
 
-        if st.button("Show whole text", key = title):
-            st.markdown(f"<p style='text-align: justify'>{text}</p>", unsafe_allow_html=True)
+        if st.button("Show whole text", key=title):
+            st.markdown(
+                f"<p style='text-align: justify'>{text}</p>", unsafe_allow_html=True
+            )
             st.session_state.reload = False
 
         if st.button("Show similar pages", key=page_id):
@@ -51,19 +57,20 @@ def print_pages(pages: list) -> None:
 def go_to_top():
     """Goes to the top of the page"""
 
-    js = '''
+    js = """
 <script>
     var body = window.parent.document.querySelector(".main");
     console.log(body);
     body.scrollTop = 0;
 </script>
-'''
+"""
     st.components.v1.html(js)
 
 
 def run_page():
-
-    st.set_page_config(page_title="Vektůrkův domeček", page_icon=":house:", layout="wide")
+    st.set_page_config(
+        page_title="Vektůrkův domeček", page_icon=":house:", layout="wide"
+    )
     st.subheader("Wikipedia searcher 🔍")
 
     if st.session_state.keywords == []:

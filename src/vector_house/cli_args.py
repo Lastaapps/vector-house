@@ -2,9 +2,16 @@ import click
 
 import indexer as ind
 
+
 @click.command()
 @click.option("--index", is_flag=True, default=False, help="Recreates index")
-def app(index: bool):
+@click.option(
+    "--limit",
+    is_flag=False,
+    default=0,
+    help="Limits the number of first words to be processed",
+)
+def app(index: bool, limit: int):
     """Default, launches gui"""
 
     if not index:
@@ -14,4 +21,4 @@ def app(index: bool):
     else:
         # Started with a parameter
         print("(Re)creating index")
-        ind.recreate_index()
+        ind.recreate_index(limit)
