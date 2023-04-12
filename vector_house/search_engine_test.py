@@ -1,7 +1,8 @@
 import numpy as np
-from database import WikiDatabase
-from database_test import run_with_db
-import search_engine as se
+from vector_house.database import WikiDatabase
+from vector_house.database_test import run_with_db
+import vector_house.search_engine as se
+
 
 @run_with_db
 def test_find_vectors(db: WikiDatabase) -> None:
@@ -31,14 +32,19 @@ def test_find_vectors(db: WikiDatabase) -> None:
     }
     assert db.get_values_for_term(terms[3]) == {}
 
+
 def test_cos_sim() -> None:
     """Tests counting cosine similarity"""
 
     wanted = np.array([1, 1, 1])
 
-    assert round(se.count_cos_sim(np.array([0.1, 0.2, 0.3]), np.array([0.4, 0.5, 0.6])), 2) == 0.97
+    assert (
+        round(se.count_cos_sim(np.array([0.1, 0.2, 0.3]), np.array([0.4, 0.5, 0.6])), 2)
+        == 0.97
+    )
     assert round(se.count_cos_sim(np.array([0.1, 0.2, 0.3]), wanted), 2) == 0.93
     assert round(se.count_cos_sim(np.array([0, 0, 0]), wanted), 2) == -1
+
 
 def test_search() -> None:
     """Tests finding top 10 most similar documents"""
@@ -56,14 +62,14 @@ def test_search() -> None:
         10: np.array([0.9, 0.7, 0.6]),
         11: np.array([0.7, 0.7, 0.7]),
         12: np.array([0.2, 0.4, 0.9]),
-        13: np.array([0, 0, 0])
+        13: np.array([0, 0, 0]),
     }
     assert se.search(data) == [11, 7, 6, 10, 5, 3, 9, 8, 2, 12]
 
     data = {
         1: np.array([0, 0, 0]),
         2: np.array([0.1, 0.3, 0.1]),
-        3: np.array([0.2, 0.1, 0.15])
+        3: np.array([0.2, 0.1, 0.15]),
     }
     assert se.search(data) == [3, 2, 1]
 

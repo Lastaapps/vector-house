@@ -1,9 +1,9 @@
 import sqlite3
 from sqlite3 import Connection
-from typing import Tuple, Dict
+from typing import Tuple, Dict, List
 import numpy as np
 
-DB_PATH = "../../wiki-index.db"
+DB_PATH = "wiki-index.db"
 
 
 class WikiDatabase:
@@ -26,7 +26,6 @@ class WikiDatabase:
         if self.has_schema():
             self.drop_database()
 
-
     def has_schema(self) -> bool:
         """Creates the db if it's schema is empty"""
 
@@ -39,7 +38,6 @@ SELECT count(name) FROM sqlite_master WHERE type='table';
         )
 
         return cur.fetchone()[0] > 2
-
 
     def create_database(self) -> None:
         """Creates a database scheme"""
@@ -266,7 +264,8 @@ SELECT value FROM value WHERE term_id = ? AND doc_id = ?;
 SELECT doc_id, value FROM term
 JOIN value USING(term_id)
 JOIN document USING(doc_id)
-WHERE term.name = ?;
+WHERE term.name = ?
+ORDER BY term_id;
                     """,
             [term_name],
         )
@@ -277,6 +276,39 @@ WHERE term.name = ?;
         to_return = dict(zip(doc_id_iter, value_iter))
 
         return to_return
+
+    def get_values_for_terms(self, term_names: List[str]) -> Dict[int, np.float32]:
+        """
+        Gets value for the pair given
+        """
+        cur = self.con.cursor()
+
+        question_marks = ','.join('?' * len(term_names))
+        res = cur.execute(
+            f"""
+SELECT doc_id, value, term_rank FROM term
+JOIN value USING(term_id)
+JOIN document USING(doc_id)
+JOIN (
+    SELECT term_id, rank() OVER win AS term_rank FROM term
+    WHERE name IN ({question_marks})
+    WINDOW win AS (ORDER BY term_id)
+) USING(term_id)
+WHERE term.name IN ({question_marks})
+ORDER BY doc_id, term_rank;
+                    """,
+            term_names + term_names,
+        )
+
+        rows = res.fetchall()
+        dct : Dict[int, np.array[np.float32]] = {}
+        for row in rows:
+            doc_id, value, term_rank = row
+            if doc_id not in dct.keys():
+                dct[doc_id] = np.zeros(len(term_names))
+            dct[doc_id][term_rank - 1] = value
+
+        return dct
 
     def get_terms_for_doc(self, doc_id: int) -> Dict[str, np.float32]:
         """
@@ -289,7 +321,8 @@ WHERE term.name = ?;
 SELECT term.name, value FROM term
 JOIN value USING(term_id)
 JOIN document USING(doc_id)
-WHERE doc_id = ?;
+WHERE doc_id = ?
+ORDER BY term_id;
                     """,
             [doc_id],
         )
@@ -300,36 +333,79 @@ WHERE doc_id = ?;
         to_return = dict(zip(term_names, values))
         return to_return
 
+    def has_index(self) -> bool:
+        """Checks if the database has created indexes"""
+        cur = self.con.cursor()
+        res = cur.execute(
+            """
+SELECT count(*) FROM sqlite_master WHERE type='index' and name='value_term_id';
+                    """
+        )
+
+        return res.fetchone()[0] != 0
+
     def create_index(self):
         print("Creating index")
 
         cur = self.con.cursor()
-        cur.execute("""
+        cur.execute(
+            """
 CREATE INDEX IF NOT EXISTS value_term_id ON value (term_id);
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 CREATE INDEX IF NOT EXISTS value_doc_id ON value (doc_id);
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 CREATE INDEX IF NOT EXISTS term_term_id ON value (term_id);
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 CREATE INDEX IF NOT EXISTS document_doc_id ON value (doc_id);
-                    """)
- 
+                    """
+        )
+
     def drop_index(self):
         print("Dropping index")
 
         cur = self.con.cursor()
-        cur.execute("""
+        cur.execute(
+            """
 DROP INDEX IF EXISTS term_term_id;
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 DROP INDEX IF EXISTS document_doc_id;
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 DROP INDEX IF EXISTS value_doc_id;
-                    """)
-        cur.execute("""
+                    """
+        )
+        cur.execute(
+            """
 DROP INDEX IF EXISTS value_term_id;
-                    """)
+                    """
+        )
+
+    def print_stats(self) -> None:
+        """Prints info about DB table sizes"""
+        cur = self.con.cursor()
+
+        res = cur.execute(""" SELECT count(*) FROM term; """)
+        cnt = res.fetchone()[0]
+        print(f"Terms: {cnt}")
+
+        res = cur.execute(""" SELECT count(*) FROM document; """)
+        cnt = res.fetchone()[0]
+        print(f"Documents: {cnt}")
+
+        res = cur.execute(""" SELECT count(*) FROM value; """)
+        cnt = res.fetchone()[0]
+        print(f"Values: {cnt}")

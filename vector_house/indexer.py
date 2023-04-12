@@ -1,10 +1,11 @@
-from database import WikiDatabase
+from vector_house.database import WikiDatabase
 import glob
 import nltk
 import math
 import mwxml
 import string
 from collections import defaultdict
+import itertools
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from wiki_dump_reader import Cleaner
@@ -13,8 +14,9 @@ nltk.download("wordnet")
 nltk.download("stopwords")
 
 # Max number of Wiki pages to index
-INDEX_SIZE = 1024 # 8192
-XML_LOCATION = "../../wiki-data/*wiki-*-pages-articles-multistream.xml"
+INDEX_SIZE = 8192
+WORD_LIMIT = 42069
+XML_LOCATION = "wiki-data/*wiki-*-pages-articles-multistream.xml"
 
 
 def get_file_name() -> str:
@@ -43,8 +45,11 @@ def remove_wiki_shit(text) -> str:
     return text
 
 
-def lemmatize_text(text) -> dict:
+def lemmatize_text(text: str, limit: int = 0) -> dict:
     """Lemmatize the text, remove stop words and count frequencies."""
+
+    if limit == 0:
+        limit = WORD_LIMIT
 
     text_no_punct = text.translate(
         str.maketrans("", "", string.punctuation)
@@ -57,7 +62,7 @@ def lemmatize_text(text) -> dict:
     stop_words.update(extra_stop_words)
 
     freq_dict = defaultdict(int)
-    for token in tokens:
+    for token in itertools.islice(tokens, limit):
         word = token.lower()
         if word not in stop_words:
             word = lemmatizer.lemmatize(word)
@@ -131,8 +136,13 @@ def create_database() -> WikiDatabase:
     return wiki_db
 
 
-def recreate_index() -> WikiDatabase:
+def recreate_index(limit: int, index_size: int) -> WikiDatabase:
     """Reads wiki dump and processes it"""
+
+    if limit != 0:
+        print(f"Using token limit: {limit}")
+    if index_size == 0:
+        index_size = INDEX_SIZE
 
     file_name = get_file_name()
     print(f"Using {file_name}")
@@ -157,17 +167,19 @@ def recreate_index() -> WikiDatabase:
         if text.startswith("REDIRECT"):
             continue
 
-        print(f"{page_id:4}: {page_title}")
+        print(f"{page_id:5}: {page_title}")
         doc_id = wiki_db.insert_document(page_title, text)
-        freq_dict = lemmatize_text(text)
+        freq_dict = lemmatize_text(text, limit)
         update_abs_freq(freq_dict, terms, doc_id, absolute_freq, wiki_db)
 
         pages_counter += 1
-        if pages_counter >= INDEX_SIZE:
+        if pages_counter >= index_size:
             break
 
     relative_freq = count_relative_freq(absolute_freq, terms)
     weights_to_db(wiki_db, relative_freq, terms, INDEX_SIZE)
 
     wiki_db.create_index()
+    wiki_db.print_stats()
+
     return wiki_db

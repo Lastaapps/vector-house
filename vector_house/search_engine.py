@@ -1,12 +1,17 @@
 from typing import List, Dict, Tuple
 import numpy as np
 from queue import PriorityQueue
-from database import WikiDatabase
+
+from vector_house.database import WikiDatabase
+
 
 def find_vectors(db: WikiDatabase, terms: List[str]) -> Dict[int, np.array]:
     """
     Finds weight vectors for the terms given
     """
+
+    return db.get_values_for_terms(terms)
+
     size = len(terms)
     to_return: Dict[int, np.array] = dict()
 
@@ -22,8 +27,9 @@ def find_vectors(db: WikiDatabase, terms: List[str]) -> Dict[int, np.array]:
 
             value = doc_with_value[1]
             to_return[doc_id][i] = value
-    
+
     return to_return
+
 
 def count_cos_sim(vec1: np.array, vec2: np.array) -> float:
     """
@@ -33,11 +39,12 @@ def count_cos_sim(vec1: np.array, vec2: np.array) -> float:
     if np.all(vec1 == 0) or np.all(vec2 == 0):
         return -1
 
-    norm_vec1 = np.linalg.norm(vec1) # euclidean
+    norm_vec1 = np.linalg.norm(vec1)  # euclidean
     norm_vec2 = np.linalg.norm(vec2)
-    return np.dot(vec1, vec2)/(norm_vec1*norm_vec2)
+    return np.dot(vec1, vec2) / (norm_vec1 * norm_vec2)
 
-def search(data: Dict[int, np.array], wanted: np.array=None) -> List[int]:
+
+def search(data: Dict[int, np.array], wanted: np.array = None) -> List[int]:
     """
     Returns ids of top 10 most relevant documents in order
     """
@@ -66,4 +73,4 @@ def search(data: Dict[int, np.array], wanted: np.array=None) -> List[int]:
     while not top_docs.empty():
         res.append(top_docs.get()[1])
 
-    return res[::-1] # swap
+    return res[::-1]  # swap
