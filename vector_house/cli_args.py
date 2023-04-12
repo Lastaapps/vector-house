@@ -1,7 +1,7 @@
 import click
 
-import indexer as ind
-from database import WikiDatabase
+import vector_house.indexer as ind
+from vector_house.database import WikiDatabase
 
 
 @click.command()

@@ -1,10 +1,17 @@
-# from vector_house.database import WikiDatabase
-from database import WikiDatabase
-import indexer as ind
+import pathlib
+import sys
+
+# This adds the local module to the PYTHONPATH variable
+# https://www.isticktoit.net/?p=2499
+sys.path.append(str(pathlib.Path().absolute()))
+
 import numpy as np
-import search_engine as se
 import streamlit as st
 import time
+
+from vector_house.database import WikiDatabase
+import vector_house.indexer as ind
+import vector_house.search_engine as se
 
 
 def get_pages(keywords: list) -> list:
@@ -98,6 +105,7 @@ def run_page():
 
 
 if "wiki_db" not in st.session_state:
+    print("Connecting DB")
     st.session_state.keywords = []
     st.session_state.wiki_db = WikiDatabase()
     st.session_state.wiki_db.connect_database()

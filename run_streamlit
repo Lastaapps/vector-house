@@ -1,0 +1,4 @@
+#!/bin/bash
+
+streamlit run vector_house/page.py "$@"
+

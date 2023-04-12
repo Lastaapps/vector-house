@@ -1,4 +1,4 @@
-from database import WikiDatabase
+from vector_house.database import WikiDatabase
 import glob
 import nltk
 import math
@@ -16,7 +16,7 @@ nltk.download("stopwords")
 # Max number of Wiki pages to index
 INDEX_SIZE = 8192
 WORD_LIMIT = 42069
-XML_LOCATION = "../../wiki-data/*wiki-*-pages-articles-multistream.xml"
+XML_LOCATION = "wiki-data/*wiki-*-pages-articles-multistream.xml"
 
 
 def get_file_name() -> str:

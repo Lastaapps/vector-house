@@ -1,7 +1,8 @@
 from typing import List, Dict, Tuple
 import numpy as np
 from queue import PriorityQueue
-from database import WikiDatabase
+
+from vector_house.database import WikiDatabase
 
 
 def find_vectors(db: WikiDatabase, terms: List[str]) -> Dict[int, np.array]:

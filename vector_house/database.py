@@ -3,7 +3,7 @@ from sqlite3 import Connection
 from typing import Tuple, Dict
 import numpy as np
 
-DB_PATH = "../../wiki-index.db"
+DB_PATH = "wiki-index.db"
 
 
 class WikiDatabase:
@@ -363,11 +363,11 @@ DROP INDEX IF EXISTS value_term_id;
         """Prints info about DB table sizes"""
         cur = self.con.cursor()
 
-        res = cur.execute(""" SELECT count(term_id) FROM term; """)
+        res = cur.execute(""" SELECT count(*) FROM term; """)
         cnt = res.fetchone()[0]
         print(f"Terms: {cnt}")
 
-        res = cur.execute(""" SELECT count(doc_id) FROM document; """)
+        res = cur.execute(""" SELECT count(*) FROM document; """)
         cnt = res.fetchone()[0]
         print(f"Documents: {cnt}")
 
