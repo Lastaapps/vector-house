@@ -9,6 +9,9 @@ def find_vectors(db: WikiDatabase, terms: List[str]) -> Dict[int, np.array]:
     """
     Finds weight vectors for the terms given
     """
+
+    return db.get_values_for_terms(terms)
+
     size = len(terms)
     to_return: Dict[int, np.array] = dict()
 

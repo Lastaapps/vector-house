@@ -1,6 +1,6 @@
 import sqlite3
 from sqlite3 import Connection
-from typing import Tuple, Dict
+from typing import Tuple, Dict, List
 import numpy as np
 
 DB_PATH = "wiki-index.db"
@@ -264,7 +264,8 @@ SELECT value FROM value WHERE term_id = ? AND doc_id = ?;
 SELECT doc_id, value FROM term
 JOIN value USING(term_id)
 JOIN document USING(doc_id)
-WHERE term.name = ?;
+WHERE term.name = ?
+ORDER BY term_id;
                     """,
             [term_name],
         )
@@ -275,6 +276,39 @@ WHERE term.name = ?;
         to_return = dict(zip(doc_id_iter, value_iter))
 
         return to_return
+
+    def get_values_for_terms(self, term_names: List[str]) -> Dict[int, np.float32]:
+        """
+        Gets value for the pair given
+        """
+        cur = self.con.cursor()
+
+        question_marks = ','.join('?' * len(term_names))
+        res = cur.execute(
+            f"""
+SELECT doc_id, value, term_rank FROM term
+JOIN value USING(term_id)
+JOIN document USING(doc_id)
+JOIN (
+    SELECT term_id, rank() OVER win AS term_rank FROM term
+    WHERE name IN ({question_marks})
+    WINDOW win AS (ORDER BY term_id)
+) USING(term_id)
+WHERE term.name IN ({question_marks})
+ORDER BY doc_id, term_rank;
+                    """,
+            term_names + term_names,
+        )
+
+        rows = res.fetchall()
+        dct : Dict[int, np.array[np.float32]] = {}
+        for row in rows:
+            doc_id, value, term_rank = row
+            if doc_id not in dct.keys():
+                dct[doc_id] = np.zeros(len(term_names))
+            dct[doc_id][term_rank - 1] = value
+
+        return dct
 
     def get_terms_for_doc(self, doc_id: int) -> Dict[str, np.float32]:
         """
@@ -287,7 +321,8 @@ WHERE term.name = ?;
 SELECT term.name, value FROM term
 JOIN value USING(term_id)
 JOIN document USING(doc_id)
-WHERE doc_id = ?;
+WHERE doc_id = ?
+ORDER BY term_id;
                     """,
             [doc_id],
         )
