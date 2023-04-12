@@ -1,6 +1,6 @@
 import os
 
-import vector_house.cli_args as args
+import cli_args as args
 
 def pwd() -> None:
     dir_path = os.path.dirname(os.path.realpath(__file__))

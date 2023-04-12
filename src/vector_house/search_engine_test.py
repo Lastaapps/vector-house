@@ -1,7 +1,7 @@
 import numpy as np
-from vector_house.database import WikiDatabase
-from vector_house.database_test import run_with_db
-import vector_house.search_engine as se
+from database import WikiDatabase
+from database_test import run_with_db
+import search_engine as se
 
 @run_with_db
 def test_find_vectors(db: WikiDatabase) -> None:

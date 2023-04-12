@@ -92,7 +92,8 @@ def run_page():
 
 if "wiki_db" not in st.session_state:
     st.session_state.keywords = []
-    st.session_state.wiki_db = ind.recreate_index()
+    st.session_state.wiki_db = WikiDatabase()
+    st.session_state.wiki_db.connect_database()
     st.session_state.reload = True
 
 run_page()

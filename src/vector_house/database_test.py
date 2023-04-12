@@ -1,6 +1,6 @@
 
 from typing import Callable
-from vector_house.database import WikiDatabase
+from database import WikiDatabase
 import random as rnd
 
 DB_PATH_TEST = "wiki-test-index.db"
