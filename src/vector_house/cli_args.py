@@ -11,7 +11,13 @@ import indexer as ind
     default=0,
     help="Limits the number of first words to be processed",
 )
-def app(index: bool, limit: int):
+@click.option(
+    "--size",
+    is_flag=False,
+    default=0,
+    help="Number of documents to index",
+)
+def app(index: bool, limit: int, size: int):
     """Default, launches gui"""
 
     if not index:
@@ -21,4 +27,4 @@ def app(index: bool, limit: int):
     else:
         # Started with a parameter
         print("(Re)creating index")
-        ind.recreate_index(limit)
+        ind.recreate_index(limit, size)

@@ -14,7 +14,8 @@ nltk.download("wordnet")
 nltk.download("stopwords")
 
 # Max number of Wiki pages to index
-INDEX_SIZE = 1024  # 8192
+INDEX_SIZE = 8192
+WORD_LIMIT = 42069
 XML_LOCATION = "../../wiki-data/*wiki-*-pages-articles-multistream.xml"
 
 
@@ -48,7 +49,7 @@ def lemmatize_text(text: str, limit: int = 0) -> dict:
     """Lemmatize the text, remove stop words and count frequencies."""
 
     if limit == 0:
-        limit = 42069
+        limit = WORD_LIMIT
 
     text_no_punct = text.translate(
         str.maketrans("", "", string.punctuation)
@@ -135,11 +136,13 @@ def create_database() -> WikiDatabase:
     return wiki_db
 
 
-def recreate_index(limit: int) -> WikiDatabase:
+def recreate_index(limit: int, index_size: int) -> WikiDatabase:
     """Reads wiki dump and processes it"""
 
     if limit != 0:
         print(f"Using token limit: {limit}")
+    if index_size == 0:
+        index_size = INDEX_SIZE
 
     file_name = get_file_name()
     print(f"Using {file_name}")
@@ -170,7 +173,7 @@ def recreate_index(limit: int) -> WikiDatabase:
         update_abs_freq(freq_dict, terms, doc_id, absolute_freq, wiki_db)
 
         pages_counter += 1
-        if pages_counter >= INDEX_SIZE:
+        if pages_counter >= index_size:
             break
 
     relative_freq = count_relative_freq(absolute_freq, terms)

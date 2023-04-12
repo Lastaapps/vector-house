@@ -2,5 +2,7 @@
 
 /wiki-data
 wiki-index.db
+wiki-index.db-journal
 wiki-test-index.db
+wiki-test-index.db-journal
 **/__pycache__/**
