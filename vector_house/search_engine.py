@@ -1,6 +1,6 @@
 from typing import List, Dict, Tuple
-import numpy as np
 from queue import PriorityQueue
+import numpy as np
 
 from vector_house.database import WikiDatabase
 
@@ -44,7 +44,7 @@ def count_cos_sim(vec1: np.array, vec2: np.array) -> float:
     return np.dot(vec1, vec2) / (norm_vec1 * norm_vec2)
 
 
-def search(data: Dict[int, np.array], wanted: np.array = None) -> List[int]:
+def search(data: Dict[int, np.array], wanted: np.array = None) -> List[Tuple[int, int]]:
     """
     Returns ids of top 10 most relevant documents in order
     """
@@ -71,6 +71,6 @@ def search(data: Dict[int, np.array], wanted: np.array = None) -> List[int]:
 
     res = []
     while not top_docs.empty():
-        res.append(top_docs.get()[1])
+        res.append(top_docs.get())
 
     return res[::-1]  # swap

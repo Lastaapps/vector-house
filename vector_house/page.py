@@ -1,20 +1,18 @@
+import time
 import pathlib
 import sys
+from typing import List, Dict, Tuple
+import numpy as np
+import streamlit as st
+import vector_house.indexer as ind
+import vector_house.search_engine as se
+from vector_house.database import WikiDatabase
 
 # This adds the local module to the PYTHONPATH variable
 # https://www.isticktoit.net/?p=2499
 sys.path.append(str(pathlib.Path().absolute()))
 
-import numpy as np
-import streamlit as st
-import time
-
-from vector_house.database import WikiDatabase
-import vector_house.indexer as ind
-import vector_house.search_engine as se
-
-
-def get_pages(keywords: list) -> list:
+def get_pages(keywords: List) -> List[Tuple[int, int]]:
     """Gets ids of 10 pages to show"""
 
     vectors = se.find_vectors(st.session_state.wiki_db, keywords)
@@ -43,22 +41,23 @@ def print_pages(pages: list) -> None:
 
     st.write("---")
     wiki_db = st.session_state.wiki_db
-    for page_id in pages:
-        title, text = wiki_db.get_doc_by_id(page_id)
+    for page in pages:
+        title, text = wiki_db.get_doc_by_id(page[1])
         st.write(f"<h4 style='text-align: left'>{title}</h4>", unsafe_allow_html=True)
         st.markdown(
             f"<p style='text-align: justify'>{text[:5000]}</p>", unsafe_allow_html=True
         )
 
-        if st.button("Show whole text", key=title):
+        st.write("Cosine similarity:", round(page[0], 2))
+        if st.button("Show more text", key=title):
             st.markdown(
                 f"<p style='text-align: justify'>{text}</p>", unsafe_allow_html=True
             )
             st.session_state.reload = False
 
-        if st.button("Show similar pages", key=page_id):
+        if st.button("Show similar pages", key=page[1]):
             st.session_state.reload = True
-            set_new_state(page_id)
+            set_new_state(page[1])
 
 
 def go_to_top():

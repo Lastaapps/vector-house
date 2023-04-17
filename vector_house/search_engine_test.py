@@ -64,13 +64,17 @@ def test_search() -> None:
         12: np.array([0.2, 0.4, 0.9]),
         13: np.array([0, 0, 0]),
     }
-    assert se.search(data) == [11, 7, 6, 10, 5, 3, 9, 8, 2, 12]
+
+    doc_ids = [x[1] for x in se.search(data)]
+    assert doc_ids == [11, 7, 6, 10, 5, 3, 9, 8, 2, 12]
 
     data = {
         1: np.array([0, 0, 0]),
         2: np.array([0.1, 0.3, 0.1]),
         3: np.array([0.2, 0.1, 0.15]),
     }
-    assert se.search(data) == [3, 2, 1]
+
+    doc_ids = [x[1] for x in se.search(data)]
+    assert doc_ids == [3, 2, 1]
 
     assert se.search({}) == []
