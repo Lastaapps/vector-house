@@ -25,7 +25,7 @@ def get_pages(keywords: List) -> List[Tuple[int, int]]:
     return pages
 
 
-def set_new_state(page_id: int):
+def set_new_state(page_id: int) -> None:
     """Sets new state to show similar pages to given one"""
 
     wiki_db = st.session_state.wiki_db
@@ -45,7 +45,7 @@ def print_pages(pages: list) -> None:
         title, text = wiki_db.get_doc_by_id(page[1])
         st.write(f"<h4 style='text-align: left'>{title}</h4>", unsafe_allow_html=True)
         st.markdown(
-            f"<p style='text-align: justify'>{text[:5000]}</p>", unsafe_allow_html=True
+            f"<p style='text-align: justify'>{text[:4000]}</p>", unsafe_allow_html=True
         )
 
         st.write("Cosine similarity:", round(page[0], 2))
@@ -60,7 +60,7 @@ def print_pages(pages: list) -> None:
             set_new_state(page[1])
 
 
-def go_to_top():
+def go_to_top() -> None:
     """Goes to the top of the page"""
 
     js = """
@@ -72,29 +72,35 @@ def go_to_top():
 """
     st.components.v1.html(js)
 
+def get_keywords() -> None:
+    st.session_state.reload = True
+    keywords = st.text_input("I would like to see wikipedia pages about:")
+    st.session_state.name = keywords
+    st.session_state.keywords = list(ind.lemmatize_text(keywords).keys())
 
-def run_page():
+def run_page() -> None:
     st.set_page_config(
         page_title="Vektůrkův domeček", page_icon=":house:", layout="wide"
     )
     st.subheader("Wikipedia searcher 🔍")
 
     if st.session_state.keywords == []:
-        st.session_state.reload = True
-        keywords = st.text_input("I would like to see wikipedia pages about:")
-        st.session_state.name = keywords
-        st.session_state.keywords = list(ind.lemmatize_text(keywords).keys())
+        get_keywords()
 
     st.write("Showing pages about:", st.session_state.name)
+    st.type_of_search = st.radio("Choose type of search",
+                                 ("Vector model", "Sequential"))
 
     if st.session_state.reload:
         start_time = time.time()
-        st.session_state.pages = get_pages(st.session_state.keywords)
+        if st.type_of_search == "Vector model":
+            st.session_state.pages = get_pages(st.session_state.keywords)
+        else:
+            st.write("TO DO")
         end_time = time.time()
         st.session_state.time = round(end_time - start_time, 2)
 
-    if "time" in st.session_state:
-        st.write("Time taken (in seconds):", st.session_state.time)
+    st.write("Time taken (in seconds):", st.session_state.time)
 
     print_pages(st.session_state.pages)
 

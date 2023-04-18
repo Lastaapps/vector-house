@@ -1,7 +1,6 @@
 from typing import List, Dict, Tuple
 from queue import PriorityQueue
 import numpy as np
-
 from vector_house.database import WikiDatabase
 
 
