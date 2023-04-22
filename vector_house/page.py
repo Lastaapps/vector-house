@@ -90,13 +90,15 @@ def run_page() -> None:
     st.write("Showing pages about:", st.session_state.name)
     st.type_of_search = st.radio("Choose type of search",
                                  ("Vector model", "Sequential"))
+    
+    if st.type_of_search == "Vector model" and not st.session_state.wiki_db.has_index():
+            st.session_state.wiki_db.create_index()
+    elif st.type_of_search == "Sequential" and st.session_state.wiki_db.has_index():
+        st.session_state.wiki_db.drop_index()
 
     if st.session_state.reload:
         start_time = time.time()
-        if st.type_of_search == "Vector model":
-            st.session_state.pages = get_pages(st.session_state.keywords)
-        else:
-            st.write("TO DO")
+        st.session_state.pages = get_pages(st.session_state.keywords)
         end_time = time.time()
         st.session_state.time = round(end_time - start_time, 2)
 
