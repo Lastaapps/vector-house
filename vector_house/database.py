@@ -1,3 +1,4 @@
+import time
 import sqlite3
 from sqlite3 import Connection
 from typing import Tuple, Dict, List
@@ -409,3 +410,17 @@ DROP INDEX IF EXISTS value_term_id;
         res = cur.execute(""" SELECT count(*) FROM value; """)
         cnt = res.fetchone()[0]
         print(f"Values: {cnt}")
+    
+    def cache_filesystem(self) -> None:
+        """Let the DB go trough all the values so they are loaded into memory cache"""
+
+        cur = self.con.cursor()
+
+        start_time = time.time()
+        cur.execute(""" SELECT count(term_id) FROM term; """).fetchall()
+        cur.execute(""" SELECT count(doc_id) FROM document; """).fetchall()
+        cur.execute(""" SELECT count(term_id) FROM value; """).fetchall()
+        cur.execute(""" SELECT count(doc_id) FROM value; """).fetchall()
+        end_time = time.time()
+        duration = round(end_time - start_time, 2)
+        print(f"Caching took {duration}s")

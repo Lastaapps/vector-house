@@ -4,13 +4,15 @@ import sys
 from typing import List, Dict, Tuple
 import numpy as np
 import streamlit as st
+
+# This adds the local module to the PYTHONPATH variable
+# Has to be placed before any vector_house import
+# https://www.isticktoit.net/?p=2499
+sys.path.append(str(pathlib.Path().absolute()))
+
 import vector_house.indexer as ind
 import vector_house.search_engine as se
 from vector_house.database import WikiDatabase
-
-# This adds the local module to the PYTHONPATH variable
-# https://www.isticktoit.net/?p=2499
-sys.path.append(str(pathlib.Path().absolute()))
 
 def get_pages(keywords: List) -> List[Tuple[int, int]]:
     """Gets ids of 10 pages to show"""
@@ -116,6 +118,7 @@ if "wiki_db" not in st.session_state:
     st.session_state.keywords = []
     st.session_state.wiki_db = WikiDatabase()
     st.session_state.wiki_db.connect_database()
+    st.session_state.wiki_db.cache_filesystem()
     st.session_state.reload = True
 
 run_page()
