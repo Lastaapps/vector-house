@@ -9,12 +9,13 @@ import itertools
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from wiki_dump_reader import Cleaner
+from typing import List, Tuple
 
 nltk.download("wordnet")
 nltk.download("stopwords")
 
 # Max number of Wiki pages to index
-INDEX_SIZE = 8192
+INDEX_SIZE = 1000 # 8192
 WORD_LIMIT = 42069
 XML_LOCATION = "wiki-data/*wiki-*-pages-articles-multistream.xml"
 
@@ -112,20 +113,31 @@ def count_weight(num_of_docs: int, tf_ij: int, df_i: int) -> float:
 
 
 def weights_to_db(
-    wiki_db: WikiDatabase, relative_freq: dict, terms: set, num_of_docs: int
+    wiki_db: WikiDatabase, relative_freq: dict, terms: set, num_of_docs: int, top_docs: int
 ) -> None:
     for term_id in terms:
         if term_id not in relative_freq:
             continue
 
         cur_dict = relative_freq[term_id]
+        weights: List[Tuple[int, float]] = []
+
         for doc_id, value in cur_dict.items():
             tf_ij = value  # normalized term frequency
-            df_i = len(cur_dict)  # num of docs containig term
+            df_i = len(cur_dict)  # num of docs containing term
             weight = count_weight(num_of_docs, tf_ij, df_i)
-            wiki_db.insert_value(term_id, doc_id, weight)
+            if top_docs == 0:
+                wiki_db.insert_value(term_id, doc_id, weight)
+            else:
+                weights.append((doc_id, weight))
 
-    wiki_db.commit()
+        if top_docs == 0:
+            continue
+
+        weights.sort(reverse=True, key=lambda x: x[1])
+
+        for doc_id, weight in itertools.islice(weights, top_docs):
+            wiki_db.insert_value(term_id, doc_id, weight)
 
 
 def create_database() -> WikiDatabase:
@@ -136,11 +148,15 @@ def create_database() -> WikiDatabase:
     return wiki_db
 
 
-def recreate_index(limit: int, index_size: int) -> WikiDatabase:
+def recreate_index(limit: int, index_size: int, top_docs: int) -> WikiDatabase:
     """Reads wiki dump and processes it"""
 
     if limit != 0:
         print(f"Using token limit: {limit}")
+
+    if top_docs != 0:
+        print(f"Using top docs: {top_docs}")
+
     if index_size == 0:
         index_size = INDEX_SIZE
 
@@ -167,7 +183,7 @@ def recreate_index(limit: int, index_size: int) -> WikiDatabase:
         if text.startswith("REDIRECT"):
             continue
 
-        print(f"{page_id:5}: {page_title}")
+        print(f"{pages_counter:5} - {page_id:5}: {page_title}")
         doc_id = wiki_db.insert_document(page_title, text)
         freq_dict = lemmatize_text(text, limit)
         update_abs_freq(freq_dict, terms, doc_id, absolute_freq, wiki_db)
@@ -177,7 +193,8 @@ def recreate_index(limit: int, index_size: int) -> WikiDatabase:
             break
 
     relative_freq = count_relative_freq(absolute_freq, terms)
-    weights_to_db(wiki_db, relative_freq, terms, INDEX_SIZE)
+    weights_to_db(wiki_db, relative_freq, terms, pages_counter, top_docs)
+    wiki_db.commit()
 
     wiki_db.create_index()
     wiki_db.print_stats()
