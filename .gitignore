@@ -1,6 +1,7 @@
 .venv
 .pytest_cache
 
+/benchmark
 /wiki-data
 wiki-index.db
 wiki-index.db-journal

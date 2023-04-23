@@ -1,22 +1,28 @@
+import time
 import sqlite3
 from sqlite3 import Connection
 from typing import Tuple, Dict, List
 import numpy as np
 
-DB_PATH = "wiki-index.db"
+DB_DEFAULT_FILENAME = "wiki-index.db"
 
 
 class WikiDatabase:
-    def __init__(self, path: str = DB_PATH):
+    def __init__(self, path: str = DB_DEFAULT_FILENAME, autoConnect: bool = True):
         self.path = path
         self.con: Connection | None = None
+        if autoConnect:
+            self.connect_database()
 
     def connect_database(self) -> None:
         """
         Creates the database file if needed
         and connects to it
         """
+        if self.con != None:
+            return
         self.con = sqlite3.connect(self.path, check_same_thread=False)
+        self.create_if_needed()
 
     def create_if_needed(self) -> None:
         if not self.has_schema():
@@ -283,7 +289,7 @@ ORDER BY term_id;
         """
         cur = self.con.cursor()
 
-        question_marks = ','.join('?' * len(term_names))
+        question_marks = ",".join("?" * len(term_names))
         res = cur.execute(
             f"""
 SELECT doc_id, value, term_rank FROM term
@@ -301,7 +307,7 @@ ORDER BY doc_id, term_rank;
         )
 
         rows = res.fetchall()
-        dct : Dict[int, np.array[np.float32]] = {}
+        dct: Dict[int, np.array[np.float32]] = {}
         for row in rows:
             doc_id, value, term_rank = row
             if doc_id not in dct.keys():
@@ -394,18 +400,29 @@ DROP INDEX IF EXISTS value_term_id;
                     """
         )
 
+    def get_stats(self) -> Tuple[int, int, int]:
+        """
+        Returns the number of rows in the DB tables
+        Row counts are in the order [terms, documents, values]
+        """
+        cur = self.con.cursor()
+
+        res = cur.execute(""" SELECT count(*) FROM term; """)
+        terms = res.fetchone()[0]
+
+        res = cur.execute(""" SELECT count(*) FROM document; """)
+        documents = res.fetchone()[0]
+
+        res = cur.execute(""" SELECT count(*) FROM value; """)
+        values = res.fetchone()[0]
+
+        return (terms, documents, values)
+
     def print_stats(self) -> None:
         """Prints info about DB table sizes"""
         cur = self.con.cursor()
 
-        res = cur.execute(""" SELECT count(*) FROM term; """)
-        cnt = res.fetchone()[0]
-        print(f"Terms: {cnt}")
-
-        res = cur.execute(""" SELECT count(*) FROM document; """)
-        cnt = res.fetchone()[0]
-        print(f"Documents: {cnt}")
-
-        res = cur.execute(""" SELECT count(*) FROM value; """)
-        cnt = res.fetchone()[0]
-        print(f"Values: {cnt}")
+        terms, documents, values = self.get_stats()
+        print(f"Terms: {terms}")
+        print(f"Documents: {documents}")
+        print(f"Values: {values}")
