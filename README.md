@@ -18,9 +18,12 @@ Create a virtual env `python -m venv .venv`, source it `source .venv/bin/activat
 To open the page go to use `streamlit run vector_house/page.py`
 
 ### Index
-To view index status, run `python -m vector_house` or `./run`.
+To view help, run `python -m vector_house --help` or `./run --help`.
 
-To create an index run the app from cli with the `--index` flag.
+All the commands below use the default database `wiki-index.db`
+unless you specify another one by using the `--db path` option.
+
+To create an index run this cli command `./run index`.
 
 If you want to limit the number of words processed in each document,
 add also the flag `--limit` with the number of words.
@@ -32,6 +35,13 @@ Otherwise the count is not limited.
 
 Index size (doc count) is set to 8000 by default. You can change it with
 `--size` flag in combination with the `index` frag.
+
+Run `./run info` to show db internal info.
+
+Run `./run db-index {create|drop}` to create/drop database column indexes.
+
+Run `./run benchmark` to start auto benchmarks.
+Run `./run benchmark --create-index` once before to create more different indexes.
 
 ### Tests
 To run tests, run the `pytest vector_house`.

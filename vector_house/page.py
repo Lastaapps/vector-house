@@ -19,6 +19,7 @@ def get_pages(keywords: List) -> List[Tuple[int, int]]:
 
     vectors = se.find_vectors(st.session_state.wiki_db, keywords)
 
+    print("Counting cos similarity")
     if "sim_to" not in st.session_state or st.session_state.sim_to.size == 0:
         pages = se.search(vectors)
     else:
@@ -118,7 +119,6 @@ if "wiki_db" not in st.session_state:
     st.session_state.keywords = []
     st.session_state.wiki_db = WikiDatabase()
     st.session_state.wiki_db.connect_database()
-    st.session_state.wiki_db.cache_filesystem()
     st.session_state.reload = True
 
 run_page()

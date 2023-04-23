@@ -4,20 +4,24 @@ from sqlite3 import Connection
 from typing import Tuple, Dict, List
 import numpy as np
 
-DB_PATH = "wiki-index.db"
+DB_DEFAULT_FILENAME = "wiki-index.db"
 
 
 class WikiDatabase:
-    def __init__(self, path: str = DB_PATH):
+    def __init__(self, path: str = DB_DEFAULT_FILENAME, autoConnect: bool = True):
         self.path = path
         self.con: Connection | None = None
+        if autoConnect:
+            self.connect_database()
 
     def connect_database(self) -> None:
         """
         Creates the database file if needed
         and connects to it
         """
+        if self.con != None: return
         self.con = sqlite3.connect(self.path, check_same_thread=False)
+        self.create_if_needed()
 
     def create_if_needed(self) -> None:
         if not self.has_schema():
@@ -395,32 +399,29 @@ DROP INDEX IF EXISTS value_term_id;
                     """
         )
 
+    def get_stats(self) -> Tuple[int, int, int]:
+        """
+        Returns the number of rows in the DB tables
+        Row counts are in the order [terms, documents, values]
+        """
+        cur = self.con.cursor()
+
+        res = cur.execute(""" SELECT count(*) FROM term; """)
+        terms = res.fetchone()[0]
+
+        res = cur.execute(""" SELECT count(*) FROM document; """)
+        documents = res.fetchone()[0]
+
+        res = cur.execute(""" SELECT count(*) FROM value; """)
+        values = res.fetchone()[0]
+
+        return (terms, documents, values)
+
     def print_stats(self) -> None:
         """Prints info about DB table sizes"""
         cur = self.con.cursor()
 
-        res = cur.execute(""" SELECT count(*) FROM term; """)
-        cnt = res.fetchone()[0]
-        print(f"Terms: {cnt}")
-
-        res = cur.execute(""" SELECT count(*) FROM document; """)
-        cnt = res.fetchone()[0]
-        print(f"Documents: {cnt}")
-
-        res = cur.execute(""" SELECT count(*) FROM value; """)
-        cnt = res.fetchone()[0]
-        print(f"Values: {cnt}")
-    
-    def cache_filesystem(self) -> None:
-        """Let the DB go trough all the values so they are loaded into memory cache"""
-
-        cur = self.con.cursor()
-
-        start_time = time.time()
-        cur.execute(""" SELECT count(term_id) FROM term; """).fetchall()
-        cur.execute(""" SELECT count(doc_id) FROM document; """).fetchall()
-        cur.execute(""" SELECT count(term_id) FROM value; """).fetchall()
-        cur.execute(""" SELECT count(doc_id) FROM value; """).fetchall()
-        end_time = time.time()
-        duration = round(end_time - start_time, 2)
-        print(f"Caching took {duration}s")
+        terms, documents, values = self.get_stats()
+        print(f"Terms: {terms}")
+        print(f"Documents: {documents}")
+        print(f"Values: {values}")

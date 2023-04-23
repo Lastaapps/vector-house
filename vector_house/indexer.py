@@ -148,7 +148,7 @@ def create_database() -> WikiDatabase:
     return wiki_db
 
 
-def recreate_index(limit: int, index_size: int, top_docs: int) -> WikiDatabase:
+def recreate_index(index_size: int, limit: int, top_docs: int, wiki_db: WikiDatabase | None = None) -> WikiDatabase:
     """Reads wiki dump and processes it"""
 
     if limit != 0:
@@ -165,7 +165,8 @@ def recreate_index(limit: int, index_size: int, top_docs: int) -> WikiDatabase:
     dump = mwxml.Dump.from_file(open(file_name, encoding="utf8"))
     print(dump.site_info.name, dump.site_info.dbname)
 
-    wiki_db = create_database()
+    if wiki_db == None:
+        wiki_db = create_database()
 
     terms = set()  # ids of all terms
     absolute_freq = {}
