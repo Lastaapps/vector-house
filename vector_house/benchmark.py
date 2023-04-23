@@ -9,11 +9,11 @@ import time
 
 BENCHMARK_DIR = "benchmark"
 
-sizes = [2000, 8000, 16000, 32000]
+sizes = [2000, 8000, 16000]
 # limits   = [100, 200, 400, 800, 0]
 # top_docs = [100, 200, 400, 800, 0]
 limits = [200, 800, 0]
-top_docs = [0]
+top_docs = [0, 200, 400]
 
 
 def iterate(fun: Callable[[str, int, int, int, bool], None]):
@@ -60,7 +60,6 @@ search_queries = [
         "production neighborhood insure point detail tract salmon garlic lend solid disappoint asylum grow space crosswalk egg habit railroad timber interface",
         "exclude infrastructure illustrate president distinct surface thought save public trail attract announcement body security consideration fuel if lie prosper display",
         "retired toss rider string cool absolute charter obligation situation salvation error nap cat flour digital original manner jockey rugby pledge",
-        "fascinate houseplant judge positive patience invisible prosecute practice spite physics hemisphere cassette program speed return falsify provoke disagree baseball competition",
     ]
 ]
 
@@ -96,7 +95,7 @@ def benchmark():
         for query in search_queries:
             vectors = find_vectors(wiki_db, query)
             pages = [x[1] for x in search(vectors)]
-            for i in range(len(pages)):
+            for i in range(3):
                 page_id = pages[i]
                 dict_term_val = wiki_db.get_terms_for_doc(page_id)
                 keywords = list(dict_term_val.keys())
