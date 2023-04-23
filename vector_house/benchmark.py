@@ -7,6 +7,7 @@ import os
 import os.path
 import time
 
+BETTER_FIND_PREFIX = "BR" # benchmark result
 BENCHMARK_DIR = "benchmark"
 
 sizes = [1000, 2000, 4000, 8000, 16000]
@@ -65,7 +66,7 @@ search_queries = [
 def benchmark():
     delim = "\t"
     print(
-        "BR",
+        BETTER_FIND_PREFIX,
         "Size",
         "Limit",
         "TopDocs",
@@ -106,7 +107,7 @@ def benchmark():
         terms, documents, values = wiki_db.get_stats()
         duration = end_time - start_time
         print(
-            "BR",
+            BETTER_FIND_PREFIX,
             size,
             limit,
             top_docs,

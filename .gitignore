@@ -1,5 +1,6 @@
 .venv
 .pytest_cache
+**/.ipynb_checkpoints
 
 /benchmark
 /wiki-data
