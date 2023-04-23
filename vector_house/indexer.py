@@ -144,17 +144,9 @@ def weights_to_db(
             wiki_db.insert_value(term_id, doc_id, weight)
 
 
-def create_database() -> WikiDatabase:
-    wiki_db = WikiDatabase()
-    wiki_db.connect_database()
-    wiki_db.drop_if_exists()
-    wiki_db.create_if_needed()
-    return wiki_db
-
-
 def recreate_index(
-    index_size: int, limit: int, top_docs: int, wiki_db: WikiDatabase | None = None
-) -> WikiDatabase:
+    index_size: int, limit: int, top_docs: int, wiki_db: WikiDatabase = WikiDatabase()
+) -> None:
     """Reads wiki dump and processes it"""
 
     if limit != 0:
@@ -171,8 +163,8 @@ def recreate_index(
     dump = mwxml.Dump.from_file(open(file_name, encoding="utf8"))
     print(dump.site_info.name, dump.site_info.dbname)
 
-    if wiki_db == None:
-        wiki_db = create_database()
+    wiki_db.drop_if_exists()
+    wiki_db.create_if_needed()
 
     terms = set()  # ids of all terms
     absolute_freq = {}
@@ -205,5 +197,3 @@ def recreate_index(
 
     wiki_db.create_index()
     wiki_db.print_stats()
-
-    return wiki_db

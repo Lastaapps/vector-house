@@ -9,10 +9,8 @@ import time
 
 BENCHMARK_DIR = "benchmark"
 
-sizes = [2000, 8000, 16000]
-# limits   = [100, 200, 400, 800, 0]
-# top_docs = [100, 200, 400, 800, 0]
-limits = [200, 800, 0]
+sizes = [1000, 2000, 4000, 8000, 16000]
+limits = [0, 200, 800]
 top_docs = [0, 200, 400]
 
 
@@ -96,7 +94,7 @@ def benchmark():
             vectors = find_vectors(wiki_db, query)
             pages = [x[1] for x in search(vectors)]
             for i in range(3):
-                page_id = pages[i]
+                page_id = pages[2]
                 dict_term_val = wiki_db.get_terms_for_doc(page_id)
                 keywords = list(dict_term_val.keys())
                 sim_to = np.array(list(dict_term_val.values()))

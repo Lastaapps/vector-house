@@ -51,7 +51,7 @@ def index(size: int, limit: int, top_docs: int, db: str):
 
     # Started with a parameter
     print("Creating index")
-    ind.recreate_index(limit, size, top_docs, WikiDatabase(db))
+    ind.recreate_index(size, limit, top_docs, WikiDatabase(db))
 
 
 @click.command("create", help="Crete database column indexes")
