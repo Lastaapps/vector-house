@@ -1,4 +1,3 @@
-
 from vector_house.database import WikiDatabase
 from vector_house.indexer import recreate_index
 from vector_house.search_engine import search, find_vectors
@@ -10,11 +9,12 @@ import time
 
 BENCHMARK_DIR = "benchmark"
 
-sizes    = [2000, 8000, 16000, 32000]
+sizes = [2000, 8000, 16000, 32000]
 # limits   = [100, 200, 400, 800, 0]
 # top_docs = [100, 200, 400, 800, 0]
-limits   = [200, 800, 0]
+limits = [200, 800, 0]
 top_docs = [0]
+
 
 def iterate(fun: Callable[[str, int, int, int, bool], None]):
     """size, limit, top_docs, sequential"""
@@ -25,19 +25,21 @@ def iterate(fun: Callable[[str, int, int, int, bool], None]):
 
                 fun(db_name, size, limit, top_doc, False)
                 fun(db_name, size, limit, top_doc, True)
-    
+
 
 def create_indexes():
     if not os.path.isdir(BENCHMARK_DIR):
         os.mkdir(BENCHMARK_DIR)
 
-    def create_index(db_name: str, size: int, limit: int, top_docs: int, sequential: bool):
-        if sequential: return
+    def create_index(
+        db_name: str, size: int, limit: int, top_docs: int, sequential: bool
+    ):
+        if sequential:
+            return
 
         if os.path.isfile(db_name):
             print(f"Skipping {db_name}")
             return
-            
 
         print(f"Creating name {db_name}")
         wiki_db = WikiDatabase(db_name)
@@ -48,24 +50,39 @@ def create_indexes():
     iterate(create_index)
     print("Done")
 
-search_queries = [x.split() for x in [
-    "adolf stalin",
-    "banana monkey",
-    "argentina america bull blanket",
-    "production neighborhood insure point detail tract salmon garlic lend solid disappoint asylum grow space crosswalk egg habit railroad timber interface",
-    "exclude infrastructure illustrate president distinct surface thought save public trail attract announcement body security consideration fuel if lie prosper display",
-    "retired toss rider string cool absolute charter obligation situation salvation error nap cat flour digital original manner jockey rugby pledge",
-    "fascinate houseplant judge positive patience invisible prosecute practice spite physics hemisphere cassette program speed return falsify provoke disagree baseball competition",
-]]
+
+search_queries = [
+    x.split()
+    for x in [
+        "adolf stalin",
+        "banana monkey",
+        "argentina america bull blanket",
+        "production neighborhood insure point detail tract salmon garlic lend solid disappoint asylum grow space crosswalk egg habit railroad timber interface",
+        "exclude infrastructure illustrate president distinct surface thought save public trail attract announcement body security consideration fuel if lie prosper display",
+        "retired toss rider string cool absolute charter obligation situation salvation error nap cat flour digital original manner jockey rugby pledge",
+        "fascinate houseplant judge positive patience invisible prosecute practice spite physics hemisphere cassette program speed return falsify provoke disagree baseball competition",
+    ]
+]
+
 
 def benchmark():
     delim = "\t"
     print(
-        "BR", "Size", "Limit", "TopDocs", "Sequential",
-        "Terms", "Documents", "Values", "Time",
-        sep=delim
+        "BR",
+        "Size",
+        "Limit",
+        "TopDocs",
+        "Sequential",
+        "Terms",
+        "Documents",
+        "Values",
+        "Time",
+        sep=delim,
     )
-    def benchmark_db(db_name: str, size: int, limit: int, top_docs: int, sequential: bool):
+
+    def benchmark_db(
+        db_name: str, size: int, limit: int, top_docs: int, sequential: bool
+    ):
         wiki_db = WikiDatabase(db_name)
         wiki_db.connect_database()
 
@@ -92,10 +109,16 @@ def benchmark():
         terms, documents, values = wiki_db.get_stats()
         duration = end_time - start_time
         print(
-            "BR", size, limit, top_docs, int(sequential),
-            terms, documents, values, round(duration, 1),
+            "BR",
+            size,
+            limit,
+            top_docs,
+            int(sequential),
+            terms,
+            documents,
+            values,
+            round(duration, 1),
             sep=delim,
         )
-        
 
     iterate(benchmark_db)

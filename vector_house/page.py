@@ -14,6 +14,7 @@ import vector_house.indexer as ind
 import vector_house.search_engine as se
 from vector_house.database import WikiDatabase
 
+
 def get_pages(keywords: List) -> List[Tuple[int, int]]:
     """Gets ids of 10 pages to show"""
 
@@ -75,11 +76,13 @@ def go_to_top() -> None:
 """
     st.components.v1.html(js)
 
+
 def get_keywords() -> None:
     st.session_state.reload = True
     keywords = st.text_input("I would like to see wikipedia pages about:")
     st.session_state.name = keywords
     st.session_state.keywords = list(ind.lemmatize_text(keywords).keys())
+
 
 def run_page() -> None:
     st.set_page_config(
@@ -91,11 +94,12 @@ def run_page() -> None:
         get_keywords()
 
     st.write("Showing pages about:", st.session_state.name)
-    st.type_of_search = st.radio("Choose type of search",
-                                 ("Vector model", "Sequential"))
-    
+    st.type_of_search = st.radio(
+        "Choose type of search", ("Vector model", "Sequential")
+    )
+
     if st.type_of_search == "Vector model" and not st.session_state.wiki_db.has_index():
-            st.session_state.wiki_db.create_index()
+        st.session_state.wiki_db.create_index()
     elif st.type_of_search == "Sequential" and st.session_state.wiki_db.has_index():
         st.session_state.wiki_db.drop_index()
 

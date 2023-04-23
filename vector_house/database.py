@@ -19,7 +19,8 @@ class WikiDatabase:
         Creates the database file if needed
         and connects to it
         """
-        if self.con != None: return
+        if self.con != None:
+            return
         self.con = sqlite3.connect(self.path, check_same_thread=False)
         self.create_if_needed()
 
@@ -288,7 +289,7 @@ ORDER BY term_id;
         """
         cur = self.con.cursor()
 
-        question_marks = ','.join('?' * len(term_names))
+        question_marks = ",".join("?" * len(term_names))
         res = cur.execute(
             f"""
 SELECT doc_id, value, term_rank FROM term
@@ -306,7 +307,7 @@ ORDER BY doc_id, term_rank;
         )
 
         rows = res.fetchall()
-        dct : Dict[int, np.array[np.float32]] = {}
+        dct: Dict[int, np.array[np.float32]] = {}
         for row in rows:
             doc_id, value, term_rank = row
             if doc_id not in dct.keys():

@@ -4,8 +4,9 @@ import vector_house.indexer as ind
 from vector_house.database import WikiDatabase, DB_DEFAULT_FILENAME
 import vector_house.benchmark as bk
 
+
 @click.group(
-    help = "Vector house command line interface\nManage indexes and more.",
+    help="Vector house command line interface\nManage indexes and more.",
 )
 def app():
     """Root, idk"""
@@ -13,7 +14,7 @@ def app():
 
 
 @click.command("info", help="Show info about an index (DB)")
-@click.option("--db", default = DB_DEFAULT_FILENAME)
+@click.option("--db", default=DB_DEFAULT_FILENAME)
 def info(db: str):
     # Start normal
     wiki_db = WikiDatabase(db)
@@ -23,10 +24,10 @@ def info(db: str):
     wiki_db.print_stats()
     has_index = wiki_db.has_index()
     print(f"Indexes created: {has_index}")
-    
+
 
 @click.command("index", help="Creates index (DB)")
-@click.option("--db", default = DB_DEFAULT_FILENAME)
+@click.option("--db", default=DB_DEFAULT_FILENAME)
 @click.option(
     "--limit",
     is_flag=False,
@@ -54,7 +55,7 @@ def index(size: int, limit: int, top_docs: int, db: str):
 
 
 @click.command("create", help="Crete database column indexes")
-@click.option("--db", default = DB_DEFAULT_FILENAME)
+@click.option("--db", default=DB_DEFAULT_FILENAME)
 def db_index_create(db: str):
     wiki_db = WikiDatabase(db)
     wiki_db.connect_database()
@@ -65,7 +66,7 @@ def db_index_create(db: str):
 
 
 @click.command("drop", help="Drop database column indexes")
-@click.option("--db", default = DB_DEFAULT_FILENAME)
+@click.option("--db", default=DB_DEFAULT_FILENAME)
 def db_index_drop(db: str):
     wiki_db = WikiDatabase(db)
     wiki_db.connect_database()
@@ -75,21 +76,24 @@ def db_index_drop(db: str):
     print("Done, index dropped")
 
 
-@click.group("db-index", help = "Handle database column indexes")
+@click.group("db-index", help="Handle database column indexes")
 def db_index():
     """Handles the dish command"""
     pass
 
 
 @click.command("benchmark", help="Benchmark databases")
-@click.option("--create-index", is_flag=True, default=False, help="Recreates benchmark indexes")
+@click.option(
+    "--create-index", is_flag=True, default=False, help="Recreates benchmark indexes"
+)
 def benchmark(create_index: bool):
     """Handles the info command"""
-    
+
     if create_index:
         bk.create_indexes()
     else:
         bk.benchmark()
+
 
 db_index.add_command(db_index_create)
 db_index.add_command(db_index_drop)

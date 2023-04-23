@@ -15,7 +15,7 @@ nltk.download("wordnet")
 nltk.download("stopwords")
 
 # Max number of Wiki pages to index
-INDEX_SIZE = 1000 # 8192
+INDEX_SIZE = 1000  # 8192
 WORD_LIMIT = 42069
 XML_LOCATION = "wiki-data/*wiki-*-pages-articles-multistream.xml"
 
@@ -113,7 +113,11 @@ def count_weight(num_of_docs: int, tf_ij: int, df_i: int) -> float:
 
 
 def weights_to_db(
-    wiki_db: WikiDatabase, relative_freq: dict, terms: set, num_of_docs: int, top_docs: int
+    wiki_db: WikiDatabase,
+    relative_freq: dict,
+    terms: set,
+    num_of_docs: int,
+    top_docs: int,
 ) -> None:
     for term_id in terms:
         if term_id not in relative_freq:
@@ -148,7 +152,9 @@ def create_database() -> WikiDatabase:
     return wiki_db
 
 
-def recreate_index(index_size: int, limit: int, top_docs: int, wiki_db: WikiDatabase | None = None) -> WikiDatabase:
+def recreate_index(
+    index_size: int, limit: int, top_docs: int, wiki_db: WikiDatabase | None = None
+) -> WikiDatabase:
     """Reads wiki dump and processes it"""
 
     if limit != 0:
