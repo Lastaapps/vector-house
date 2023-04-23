@@ -14,6 +14,8 @@ import vector_house.indexer as ind
 import vector_house.search_engine as se
 from vector_house.database import WikiDatabase
 
+NUM_OF_PAGES = 10
+
 
 def get_pages(keywords: List) -> List[Tuple[int, int]]:
     """Gets ids of 10 pages to show"""
@@ -45,6 +47,8 @@ def print_pages(pages: list) -> None:
 
     st.write("---")
     wiki_db = st.session_state.wiki_db
+    index = 0
+
     for page in pages:
         title, text = wiki_db.get_doc_by_id(page[1])
         st.write(f"<h4 style='text-align: left'>{title}</h4>", unsafe_allow_html=True)
@@ -53,15 +57,17 @@ def print_pages(pages: list) -> None:
         )
 
         st.write("Cosine similarity:", round(page[0], 2))
-        if st.button("Show more text", key=title):
+        if st.button("Show more text", key=index + NUM_OF_PAGES):
             st.markdown(
                 f"<p style='text-align: justify'>{text}</p>", unsafe_allow_html=True
             )
             st.session_state.reload = False
 
-        if st.button("Show similar pages", key=page[1]):
+        if st.button("Show similar pages", key=index):
             st.session_state.reload = True
             set_new_state(page[1])
+
+        index += 1
 
 
 def go_to_top() -> None:
