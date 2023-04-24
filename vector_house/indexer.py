@@ -11,6 +11,7 @@ from nltk.corpus import stopwords
 from wiki_dump_reader import Cleaner
 from typing import List, Tuple
 
+nltk.download("punkt")
 nltk.download("wordnet")
 nltk.download("stopwords")
 

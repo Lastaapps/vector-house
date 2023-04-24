@@ -85,7 +85,10 @@ def go_to_top() -> None:
 
 def get_keywords() -> None:
     st.session_state.reload = True
-    keywords = st.text_input("I would like to see wikipedia pages about:")
+    container = st.empty()
+    keywords = container.text_input("I would like to see wikipedia pages about:")
+    if keywords != "":
+        container.empty()
     st.session_state.name = keywords
     st.session_state.keywords = list(ind.lemmatize_text(keywords).keys())
 
