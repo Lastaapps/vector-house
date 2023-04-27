@@ -1,6 +1,9 @@
 import click
+from typing import List
+import numpy as np
 
 import vector_house.indexer as ind
+import vector_house.search_engine as sr
 from vector_house.database import WikiDatabase, DB_DEFAULT_FILENAME
 import vector_house.benchmark as bk
 
@@ -95,6 +98,60 @@ def benchmark(create_index: bool):
         bk.benchmark()
 
 
+@click.command("search", help="Searches for the query given")
+@click.option("--db", default=DB_DEFAULT_FILENAME)
+@click.argument("query", nargs = -1)
+def search(query: List[str], db: str):
+    """Searches for the query given"""
+    if len(query) == 0:
+        print("Empty query, exiting")
+        return
+
+    print("Searching for:", " ".join(query))
+
+    wiki_db = WikiDatabase(db)
+    vectors = sr.find_vectors(wiki_db, query)
+    pages = sr.search(vectors)
+    titles = [(x[0], x[1], wiki_db.get_doc_by_id(x[1])[0]) for x in pages]
+    for sim, doc_id, title in titles:
+        print(f"{sim:.2f} {doc_id:6d}:", title)
+
+
+@click.command("sim", help="Show similar docs to the doc id given")
+@click.option("--db", default=DB_DEFAULT_FILENAME)
+@click.argument("doc_id", type=int)
+def sim(doc_id: int, db: str):
+    """Searches for the query given"""
+
+    wiki_db = WikiDatabase(db)
+
+    src_title, _ = wiki_db.get_doc_by_id(doc_id)
+    print(f"Searching similar pages to: {doc_id} - {src_title}")
+
+    dict_term_val = wiki_db.get_terms_for_doc(doc_id)
+    keywords = list(dict_term_val.keys())
+    sim_to = np.array(list(dict_term_val.values()))
+    vectors = sr.find_vectors(wiki_db, keywords)
+    pages = sr.search(vectors, sim_to)
+    titles = [(x[0], x[1], wiki_db.get_doc_by_id(x[1])[0]) for x in pages]
+    for sim, doc_id, title in titles:
+        print(f"{sim:.2f} {doc_id:6d}:", title)
+
+
+@click.command("show", help="Show document by it's id")
+@click.option("--db", default=DB_DEFAULT_FILENAME)
+@click.argument("doc_id", type=int)
+def show(doc_id: int, db: str):
+    """Searches for the query given"""
+
+    print("Searching for doc with id:", doc_id)
+
+    wiki_db = WikiDatabase(db)
+    title, text = wiki_db.get_doc_by_id(doc_id)
+    print(title)
+    print(text)
+
+
 db_index.add_command(db_index_create)
 db_index.add_command(db_index_drop)
 
@@ -102,3 +159,6 @@ app.add_command(info)
 app.add_command(index)
 app.add_command(db_index)
 app.add_command(benchmark)
+app.add_command(search)
+app.add_command(sim)
+app.add_command(show)
