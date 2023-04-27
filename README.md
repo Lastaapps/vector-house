@@ -1,6 +1,8 @@
 # Vektůrkův domeček
 Vector house - this is where the fun happens.
 
+To see more, please read the project [report](report.pdf).
+
 Vector house is a vector based search engine used to search en variant of Wikipedia. 
 It was developed in 2023 by Naďa Fučelová and Petr Laštovička during
 the BI-VWM (Web and multimedia db searching) course at FIT CTU.
