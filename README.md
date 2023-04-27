@@ -7,6 +7,9 @@ Vector house is a vector based search engine used to search en variant of Wikipe
 It was developed in 2023 by Naďa Fučelová and Petr Laštovička during
 the BI-VWM (Web and multimedia db searching) course at FIT CTU.
 
+It the site is still up, you can try it out at
+[https://lastope2.sh.cvut.cz/vector_house/].
+
 ## Setup
 ### Download
 Download the latest dump from wiki
