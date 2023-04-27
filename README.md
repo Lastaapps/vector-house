@@ -60,4 +60,4 @@ Run `./run benchmark --create-index` once before to create more different indexe
 To run tests, run the `pytest vector_house`.
 
 ## License
-TODO
+Vector house is licensed under the `GNU GPL v3.0` license
